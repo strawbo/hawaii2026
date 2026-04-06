@@ -163,7 +163,7 @@ async function fetchWeatherForLocation(loc) {
         + `&hourly=${WEATHER_PARAMS}`
         + `&temperature_unit=fahrenheit&windspeed_unit=mph`
         + `&timezone=${TIMEZONE}&forecast_days=10`;
-    const res = await fetch(url);
+    const res = await fetch(url, { cache: 'no-store' });
     if (!res.ok) throw new Error(`Weather fetch failed for ${loc.name}`);
     return res.json();
 }
@@ -175,7 +175,7 @@ async function fetchOceanTemp() {
         + `&daily=wave_height_max,wave_direction_dominant`
         + `&timezone=${TIMEZONE}&forecast_days=10`;
     try {
-        const res = await fetch(url);
+        const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) return null;
         return res.json();
     } catch {
