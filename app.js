@@ -122,7 +122,7 @@ function scoreBlock(locId, dateStr, hourRange) {
         return hourRange.includes(hr);
     });
     if (matching.length === 0) return null;
-    const scores = matching.map(h => scoreHour(h));
+    const scores = matching.map(h => scoreHour(h, locId));
     return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
 }
 
@@ -139,7 +139,7 @@ function blockWeather(locId, dateStr, hourRange) {
     const mid = matching[Math.floor(matching.length / 2)];
     const avgTemp = Math.round(matching.reduce((s, h) => s + h.temp, 0) / matching.length);
     const avgWind = Math.round(matching.reduce((s, h) => s + h.wind, 0) / matching.length);
-    const avgSun = Math.round(100 - matching.reduce((s, h) => s + h.clouds, 0) / matching.length);
+    const avgSun = Math.round(matching.reduce((s, h) => s + adjustedSunshine(h, locId), 0) / matching.length);
     const totalPrecip = matching.reduce((s, h) => s + (h.precip || 0), 0);
     return { code: mid.code, temp: avgTemp, wind: avgWind, sun: avgSun, precip: totalPrecip };
 }
@@ -215,11 +215,37 @@ function weatherDesc(code) {
     return descs[code] || 'Fair';
 }
 
+// Hawaii cloud cover adjustment: Open-Meteo over-reports clouds for tropical islands.
+// Trade wind cumulus creates fast-moving partial cloud cover that models report as
+// "100% overcast" when the real experience is sun/shade cycling every 10-20 min.
+// South shore (rain shadow) gets an extra bonus. No rain + "overcast" = mostly sunny in practice.
+function adjustedSunshine(hourData, locId) {
+    const rawClouds = hourData.clouds;
+    const precip = hourData.precip || 0;
+
+    // If it's actually raining, trust the cloud cover more
+    if (precip >= 0.5) return Math.max(0, 100 - rawClouds);
+
+    // South shore locations get biggest adjustment (rain shadow = sunnier than models think)
+    const southShore = ['poipu', 'shipwreck', 'salt-pond'].includes(locId);
+    // West side is also drier
+    const westSide = ['polihale', 'waimea-canyon'].includes(locId);
+
+    // Discount cloud cover: models over-report by ~30-40% for Hawaii trade wind cumulus
+    let discount;
+    if (southShore) discount = 0.45;      // strongest rain shadow
+    else if (westSide) discount = 0.40;
+    else discount = 0.30;                  // north/east shore — still over-reported but less so
+
+    const adjustedClouds = rawClouds * (1 - discount);
+    return Math.round(Math.max(0, Math.min(100, 100 - adjustedClouds)));
+}
+
 // Score 0–100: how good is this hour for outdoor activities?
 // Weighted: sunshine (35%), rain (30%), temperature (20%), wind (15%)
-function scoreHour(hourData) {
-    // --- Sunshine score (0–100): inverse of cloud cover ---
-    const sunScore = 100 - hourData.clouds;
+function scoreHour(hourData, locId) {
+    // --- Sunshine score (0–100): Hawaii-adjusted ---
+    const sunScore = adjustedSunshine(hourData, locId);
 
     // --- Rain score (0–100): based on ACTUAL precipitation, not just probability ---
     // Open-Meteo precipitation_probability is often inflated for tropical islands.
@@ -332,7 +358,7 @@ function computeDayScore(locId, dateStr) {
     const dayHours = getHoursForDate(hours, dateStr);
     const daytime = getDaytimeHours(dayHours);
     if (daytime.length === 0) return null;
-    const scores = daytime.map(h => scoreHour(h));
+    const scores = daytime.map(h => scoreHour(h, locId));
     const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
     return Math.round(avg);
 }
@@ -477,7 +503,7 @@ function renderRightNow() {
             return hDate === now && hHour === currentHour;
         });
         if (!currentData) return { loc, score: -1, data: null };
-        const score = scoreHour(currentData);
+        const score = scoreHour(currentData, loc.id);
         return { loc, score, data: currentData };
     }).filter(x => x.data).sort((a, b) => b.score - a.score);
 
@@ -505,7 +531,7 @@ function renderRightNow() {
             </div>
             <div class="condition-item">
                 <span class="condition-icon">☀️</span>
-                <span class="condition-value">${100 - best.data.clouds}%</span>
+                <span class="condition-value">${adjustedSunshine(best.data, best.loc.id)}%</span>
                 <span class="condition-label">sun</span>
             </div>
             <div class="condition-item">
@@ -533,7 +559,7 @@ function renderRightNow() {
                     <div class="now-card-desc">${weatherDesc(item.data.code)}</div>
                 </div>
             </div>
-            <div class="now-card-detail">💨 ${Math.round(item.data.wind)} mph · ☀️ ${100 - item.data.clouds}% · 🌧️ ${item.data.precip > 0 ? item.data.precip.toFixed(1) + 'mm' : '0mm'}</div>
+            <div class="now-card-detail">💨 ${Math.round(item.data.wind)} mph · ☀️ ${adjustedSunshine(item.data, item.loc.id)}% · 🌧️ ${item.data.precip > 0 ? item.data.precip.toFixed(1) + 'mm' : '0mm'}</div>
             <span class="score-badge ${sl.cls}">${sl.text}</span>
         </div>`;
     }
@@ -715,7 +741,7 @@ function renderForecasts() {
         let condHtml = '';
         if (daytime.length > 0) {
             const avgWind = Math.round(daytime.reduce((s, h) => s + h.wind, 0) / daytime.length);
-            const avgSun = Math.round(100 - daytime.reduce((s, h) => s + h.clouds, 0) / daytime.length);
+            const avgSun = Math.round(daytime.reduce((s, h) => s + adjustedSunshine(h, loc.id), 0) / daytime.length);
             const totalRain = daytime.reduce((s, h) => s + (h.precip || 0), 0);
             condHtml = `<div class="forecast-conditions-row">
                 <span class="forecast-cond">☀️ ${avgSun}%</span>
@@ -725,7 +751,7 @@ function renderForecasts() {
         }
 
         // Find top 3 best hours
-        const scored = daytime.map(h => ({ ...h, score: scoreHour(h) }));
+        const scored = daytime.map(h => ({ ...h, score: scoreHour(h, loc.id) }));
         scored.sort((a, b) => b.score - a.score);
         const bestHours = new Set(scored.slice(0, 3).map(h => h.time));
 
@@ -757,7 +783,7 @@ function renderForecasts() {
                 ${daytime.map(h => {
                     const hHour = parseInt(h.time.split('T')[1].split(':')[0]);
                     const hour = formatHour(h.time);
-                    const score = scoreHour(h);
+                    const score = scoreHour(h, loc.id);
                     const isBest = bestHours.has(h.time);
                     const hsClass = hourScoreClass(score);
 
@@ -780,7 +806,7 @@ function renderForecasts() {
                         <div class="hour-icon">${weatherIcon(h.code)}</div>
                         <div class="hour-temp">${Math.round(h.temp)}°</div>
                         <div class="hour-detail">
-                            ☀️${100 - h.clouds}%<br>
+                            ☀️${adjustedSunshine(h, loc.id)}%<br>
                             💨${Math.round(h.wind)}mph<br>
                             ${h.precip > 0 ? '🌧️' + h.precip.toFixed(1) + 'mm' : ''}
                         </div>
