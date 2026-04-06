@@ -552,20 +552,36 @@ function renderDayNav() {
         const isToday = d.iso === today;
 
         // Day score from home base
-        let scoreHtml = '';
+        let weatherPillHtml = '';
         if (hasData) {
             const baseId = getHomeBase(d.iso);
             const dayScore = computeDayScore(baseId, d.iso);
-            if (dayScore !== null) {
-                const cls = dayScore >= 75 ? 'pill-score-great' : dayScore >= 50 ? 'pill-score-good' : 'pill-score-fair';
-                scoreHtml = `<span class="pill-score ${cls}">${dayScore}</span>`;
+            const hours = weatherData[baseId] || [];
+            const dayHours = getDaytimeHours(getHoursForDate(hours, d.iso));
+
+            // Get high temp and representative weather code for the day
+            let highTemp = null;
+            let repCode = null;
+            if (dayHours.length > 0) {
+                highTemp = Math.round(Math.max(...dayHours.map(h => h.temp)));
+                // Use midday hour for icon
+                const midHour = dayHours.find(h => h.time.includes('T12:')) || dayHours[Math.floor(dayHours.length / 2)];
+                repCode = midHour.code;
             }
+
+            const scoreCls = dayScore >= 75 ? 'pill-score-great' : dayScore >= 50 ? 'pill-score-good' : 'pill-score-fair';
+
+            weatherPillHtml = `<span class="pill-weather">
+                ${repCode !== null ? `<span class="pill-icon">${weatherIcon(repCode)}</span>` : ''}
+                ${highTemp !== null ? `<span class="pill-high">${highTemp}°</span>` : ''}
+                ${dayScore !== null ? `<span class="pill-score ${scoreCls}">${dayScore}</span>` : ''}
+            </span>`;
         }
 
         return `<button class="day-pill ${isActive ? 'active' : ''}" data-date="${d.iso}">
             <span class="pill-day">${d.dayName}</span>
             <span class="pill-date">${isToday ? 'Today' : 'Apr ' + d.dateNum}</span>
-            ${scoreHtml}
+            ${weatherPillHtml}
         </button>`;
     }).join('');
 
@@ -1028,6 +1044,49 @@ async function fetchAllWeather() {
     }
 }
 
+// ===== Swipe Navigation =====
+
+function setupSwipe() {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    const content = document.body;
+
+    content.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+    }, { passive: true });
+
+    content.addEventListener('touchend', (e) => {
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const deltaY = e.changedTouches[0].clientY - touchStartY;
+        const elapsed = Date.now() - touchStartTime;
+
+        // Must be a horizontal swipe: >70px, more horizontal than vertical, under 400ms
+        if (Math.abs(deltaX) < 70 || Math.abs(deltaY) > Math.abs(deltaX) * 0.7 || elapsed > 400) return;
+
+        const days = getTripDays();
+        const currentIdx = days.findIndex(d => d.iso === selectedDate);
+        if (currentIdx === -1) return;
+
+        if (deltaX < 0 && currentIdx < days.length - 1) {
+            // Swipe left → next day
+            selectedDate = days[currentIdx + 1].iso;
+            renderAll();
+        } else if (deltaX > 0 && currentIdx > 0) {
+            // Swipe right → previous day
+            selectedDate = days[currentIdx - 1].iso;
+            renderAll();
+        }
+
+        // Scroll the active pill into view
+        const activeBtn = document.querySelector(`.day-pill[data-date="${selectedDate}"]`);
+        if (activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }, { passive: true });
+}
+
 // ===== Init =====
 
 async function init() {
@@ -1040,6 +1099,9 @@ async function init() {
     } else {
         selectedDate = TRIP_END;
     }
+
+    // Setup swipe navigation
+    setupSwipe();
 
     // Render skeleton first
     renderAll();

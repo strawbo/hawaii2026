@@ -121,12 +121,25 @@ header h1 {
 .day-pill .pill-day { display: block; font-weight: 600; }
 .day-pill .pill-date { display: block; font-size: 0.7rem; opacity: 0.8; }
 
+.pill-weather {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    margin-top: 0.2rem;
+}
+
+.pill-icon { font-size: 0.95rem; line-height: 1; }
+
+.pill-high {
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
 .pill-score {
-    display: block;
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     font-weight: 800;
-    margin-top: 0.15rem;
-    padding: 0.05rem 0.35rem;
+    padding: 0.05rem 0.3rem;
     border-radius: 4px;
 }
 
@@ -134,8 +147,9 @@ header h1 {
 .pill-score-good { background: #fef9c3; color: #a16207; }
 .pill-score-fair { background: #fee2e2; color: #dc2626; }
 
-.day-pill.active .pill-score-great { background: rgba(255,255,255,0.3); color: white; }
-.day-pill.active .pill-score-good { background: rgba(255,255,255,0.3); color: white; }
+.day-pill.active .pill-high { color: white; }
+.day-pill.active .pill-score-great,
+.day-pill.active .pill-score-good,
 .day-pill.active .pill-score-fair { background: rgba(255,255,255,0.3); color: white; }
 
 /* ===== Section Headers ===== */
