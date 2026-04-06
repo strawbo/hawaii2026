@@ -6,6 +6,7 @@ const TRIP_END = '2026-04-19';
 const TIMEZONE = 'Pacific/Honolulu';
 
 // Key locations with precise coordinates
+// nwsGrid: looked up via api.weather.gov/points/{lat},{lon} → gridId/gridX/gridY
 const LOCATIONS = [
     {
         id: 'poipu',
@@ -15,6 +16,7 @@ const LOCATIONS = [
         lon: -159.4535,
         desc: 'Home base — snorkeling, sea turtles, monk seals',
         coastal: true,
+        nwsGrid: { office: 'HFO', x: 88, y: 170 },
     },
     {
         id: 'shipwreck',
@@ -24,6 +26,7 @@ const LOCATIONS = [
         lon: -159.4439,
         desc: 'Dramatic cliffs, bodyboarding, Mahaulepu Trail',
         coastal: true,
+        nwsGrid: { office: 'HFO', x: 88, y: 170 },
     },
     {
         id: 'salt-pond',
@@ -33,6 +36,7 @@ const LOCATIONS = [
         lon: -159.6636,
         desc: 'Calm protected cove — great for kids, tide pools',
         coastal: true,
+        nwsGrid: { office: 'HFO', x: 79, y: 172 },
     },
     {
         id: 'polihale',
@@ -42,6 +46,7 @@ const LOCATIONS = [
         lon: -159.7636,
         desc: '17-mile beach, Na Pali views, remote & stunning',
         coastal: true,
+        nwsGrid: { office: 'HFO', x: 75, y: 179 },
     },
     {
         id: 'waimea-canyon',
@@ -51,6 +56,7 @@ const LOCATIONS = [
         lon: -159.6600,
         desc: 'Grand Canyon of the Pacific — jaw-dropping lookouts',
         coastal: false,
+        nwsGrid: { office: 'HFO', x: 79, y: 178 },
     },
     {
         id: 'sleeping-giant',
@@ -60,6 +66,7 @@ const LOCATIONS = [
         lon: -159.3500,
         desc: 'Moderate hike with panoramic island views',
         coastal: false,
+        nwsGrid: { office: 'HFO', x: 92, y: 178 },
     },
     {
         id: 'lydgate',
@@ -69,6 +76,7 @@ const LOCATIONS = [
         lon: -159.3397,
         desc: 'Protected lava-rock pools — easy snorkeling for all ages',
         coastal: true,
+        nwsGrid: { office: 'HFO', x: 92, y: 178 },
     },
     {
         id: 'kapaa',
@@ -78,6 +86,7 @@ const LOCATIONS = [
         lon: -159.3219,
         desc: 'Shops, food, coastal bike path',
         coastal: true,
+        nwsGrid: { office: 'HFO', x: 93, y: 180 },
     },
     {
         id: 'hanalei',
@@ -87,6 +96,7 @@ const LOCATIONS = [
         lon: -159.5030,
         desc: 'Iconic crescent bay — swimming, SUP, stunning mountains',
         coastal: true,
+        nwsGrid: { office: 'HFO', x: 86, y: 185 },
     },
     {
         id: 'tunnels',
@@ -96,6 +106,7 @@ const LOCATIONS = [
         lon: -159.5694,
         desc: 'Premier snorkeling — massive reef, crystal clear',
         coastal: true,
+        nwsGrid: { office: 'HFO', x: 83, y: 186 },
     },
 ];
 
@@ -141,7 +152,9 @@ function blockWeather(locId, dateStr, hourRange) {
     const avgWind = Math.round(matching.reduce((s, h) => s + h.wind, 0) / matching.length);
     const avgSun = Math.round(matching.reduce((s, h) => s + adjustedSunshine(h, locId), 0) / matching.length);
     const totalPrecip = matching.reduce((s, h) => s + (h.precip || 0), 0);
-    return { code: mid.code, temp: avgTemp, wind: avgWind, sun: avgSun, precip: totalPrecip };
+    const source = mid.source || 'open-meteo';
+    const nwsForecast = mid.nwsForecast || null;
+    return { code: mid.code, temp: avgTemp, wind: avgWind, sun: avgSun, precip: totalPrecip, source, nwsForecast };
 }
 
 // ===== Weather API =====
@@ -183,6 +196,115 @@ async function fetchOceanTemp() {
     }
 }
 
+// ===== NWS API (human-edited forecasts from Honolulu office) =====
+
+const NWS_USER_AGENT = '(hawaii2026-trip-planner, github.com/strawbo/hawaii2026)';
+
+async function fetchNWSForLocation(loc) {
+    const { office, x, y } = loc.nwsGrid;
+    const url = `https://api.weather.gov/gridpoints/${office}/${x},${y}/forecast/hourly`;
+    try {
+        const res = await fetch(url, {
+            cache: 'no-store',
+            headers: { 'User-Agent': NWS_USER_AGENT, 'Accept': 'application/geo+json' },
+        });
+        if (!res.ok) return null;
+        return res.json();
+    } catch {
+        return null;
+    }
+}
+
+// Map NWS shortForecast text to WMO weather codes and cloud cover
+function parseNWSForecast(text) {
+    const lower = (text || '').toLowerCase();
+    let code = 1;   // default: mostly clear
+    let clouds = 10; // default: mostly clear
+
+    // Cloud cover from NWS text
+    if (lower.includes('sunny') || lower.includes('clear')) { clouds = 5; code = 0; }
+    else if (lower.includes('mostly sunny') || lower.includes('mostly clear')) { clouds = 20; code = 1; }
+    else if (lower.includes('partly sunny') || lower.includes('partly cloudy')) { clouds = 45; code = 2; }
+    else if (lower.includes('mostly cloudy')) { clouds = 75; code = 3; }
+    else if (lower.includes('cloudy') || lower.includes('overcast')) { clouds = 90; code = 3; }
+
+    // Rain overrides
+    if (lower.includes('heavy rain') || lower.includes('rain') && lower.includes('heavy')) { code = 65; clouds = 95; }
+    else if (lower.includes('rain showers') || lower.includes('showers')) { code = 80; clouds = Math.max(clouds, 70); }
+    else if (lower.includes('rain')) { code = 61; clouds = Math.max(clouds, 80); }
+    else if (lower.includes('drizzle')) { code = 51; clouds = Math.max(clouds, 70); }
+    else if (lower.includes('thunderstorm')) { code = 95; clouds = 95; }
+
+    // Scattered/isolated modifiers reduce cloud impact
+    if (lower.includes('isolated') || lower.includes('slight chance')) { clouds = Math.min(clouds, 40); }
+    else if (lower.includes('scattered') || lower.includes('chance')) { clouds = Math.min(clouds, 55); }
+
+    return { code, clouds };
+}
+
+function parseNWSHourlyData(json) {
+    if (!json || !json.properties || !json.properties.periods) return [];
+    const periods = json.properties.periods;
+    return periods.map(p => {
+        const isoTime = p.startTime; // e.g. "2026-04-12T08:00:00-10:00"
+        // Convert to Open-Meteo-style time: "2026-04-12T08:00"
+        const time = isoTime.slice(0, 16);
+        const precipProb = p.probabilityOfPrecipitation?.value ?? 0;
+        const { code, clouds } = parseNWSForecast(p.shortForecast);
+
+        // Parse wind speed — NWS gives "7 mph" or "5 to 10 mph"
+        let wind = 0;
+        const windMatch = (p.windSpeed || '').match(/(\d+)\s*(to\s*(\d+))?\s*mph/i);
+        if (windMatch) {
+            wind = windMatch[3] ? (parseInt(windMatch[1]) + parseInt(windMatch[3])) / 2 : parseInt(windMatch[1]);
+        }
+
+        // NWS doesn't give actual precipitation amount — estimate from probability + forecast text
+        let precip = 0;
+        const lower = (p.shortForecast || '').toLowerCase();
+        if (precipProb >= 70 && (lower.includes('rain') || lower.includes('showers'))) precip = 1.0;
+        else if (precipProb >= 50 && lower.includes('rain')) precip = 0.5;
+        else if (precipProb >= 30 && lower.includes('showers')) precip = 0.2;
+        else if (lower.includes('drizzle')) precip = 0.1;
+
+        return {
+            time,
+            temp: p.temperature,
+            feelsLike: p.temperature, // NWS doesn't always provide feels-like
+            precip,
+            precipProb,
+            clouds,
+            wind,
+            gusts: wind * 1.3,
+            code,
+            uv: 8, // NWS doesn't provide UV; use reasonable Hawaii default
+            source: 'nws',
+            nwsForecast: p.shortForecast, // keep the human text
+        };
+    });
+}
+
+// Merge NWS data over Open-Meteo: NWS wins for any hour it covers
+function mergeWeatherData(openMeteoHours, nwsHours) {
+    if (!nwsHours || nwsHours.length === 0) return openMeteoHours;
+
+    // Build a map of NWS hours by time key
+    const nwsMap = new Map();
+    for (const h of nwsHours) {
+        nwsMap.set(h.time, h);
+    }
+
+    // For each Open-Meteo hour, replace with NWS if available
+    return openMeteoHours.map(omHour => {
+        const nwsHour = nwsMap.get(omHour.time);
+        if (nwsHour) {
+            // Use NWS data but keep UV from Open-Meteo if available
+            return { ...nwsHour, uv: omHour.uv ?? nwsHour.uv };
+        }
+        return { ...omHour, source: 'open-meteo' };
+    });
+}
+
 // ===== Weather Utilities =====
 
 function weatherIcon(code, isDay = true) {
@@ -222,6 +344,9 @@ function weatherDesc(code) {
 function adjustedSunshine(hourData, locId) {
     const rawClouds = hourData.clouds;
     const precip = hourData.precip || 0;
+
+    // NWS data is already human-edited for Hawaii microclimates — no adjustment needed
+    if (hourData.source === 'nws') return Math.max(0, 100 - rawClouds);
 
     // If it's actually raining, trust the cloud cover more
     if (precip >= 0.5) return Math.max(0, 100 - rawClouds);
@@ -706,7 +831,8 @@ function renderItinerary() {
                     <div class="block-rec-area">${recArea}</div>
                     ${w ? `<div class="block-rec-conditions">
                         ${weatherIcon(w.code)} ${w.temp}°F · ☀️ ${w.sun}% · 💨 ${w.wind}mph${w.precip > 0 ? ' · 🌧️ ' + w.precip.toFixed(1) + 'mm' : ''}
-                    </div>` : ''}
+                    </div>
+                    ${w.nwsForecast ? `<div class="block-nws-text">NWS: "${w.nwsForecast}"</div>` : ''}` : ''}
                     ${runnerUpHtml}
                 </div>
             </div>
@@ -767,8 +893,8 @@ function renderForecasts() {
                     </div>
                 ` : ''}
                 <div class="forecast-loc-info">
-                    <div class="forecast-loc-name">${loc.name}</div>
-                    <div class="forecast-loc-area">${loc.area}</div>
+                    <div class="forecast-loc-name">${loc.name}${middayHour?.source === 'nws' ? '<span class="source-tag source-nws">NWS</span>' : ''}</div>
+                    <div class="forecast-loc-area">${loc.area}${middayHour?.nwsForecast ? ' · ' + middayHour.nwsForecast : ''}</div>
                     ${condHtml}
                 </div>
                 <div class="forecast-summary">
@@ -835,6 +961,73 @@ function renderAll() {
     renderForecasts();
 }
 
+// ===== Data Fetching =====
+
+async function fetchAllWeather() {
+    try {
+        // Fetch Open-Meteo for all locations + NWS for all locations + ocean data
+        // NWS is fetched per unique grid point to avoid duplicate requests
+        const uniqueGrids = new Map();
+        for (const loc of LOCATIONS) {
+            const key = `${loc.nwsGrid.office}/${loc.nwsGrid.x}/${loc.nwsGrid.y}`;
+            if (!uniqueGrids.has(key)) {
+                uniqueGrids.set(key, { grid: loc.nwsGrid, locIds: [loc.id] });
+            } else {
+                uniqueGrids.get(key).locIds.push(loc.id);
+            }
+        }
+
+        const [openMeteoResults, nwsResults, ocean] = await Promise.all([
+            // Open-Meteo: one request per location
+            Promise.all(LOCATIONS.map(async loc => {
+                try {
+                    const json = await fetchWeatherForLocation(loc);
+                    return { id: loc.id, hours: parseHourlyData(json) };
+                } catch (e) {
+                    console.error(`Open-Meteo failed for ${loc.name}:`, e);
+                    return { id: loc.id, hours: [] };
+                }
+            })),
+            // NWS: one request per unique grid point (shared by nearby locations)
+            Promise.all([...uniqueGrids.entries()].map(async ([key, { grid, locIds }]) => {
+                try {
+                    const json = await fetchNWSForLocation({ nwsGrid: grid });
+                    const hours = parseNWSHourlyData(json);
+                    return { locIds, hours };
+                } catch (e) {
+                    console.error(`NWS failed for grid ${key}:`, e);
+                    return { locIds, hours: [] };
+                }
+            })),
+            fetchOceanTemp(),
+        ]);
+
+        // Build NWS hours map: locId → hours
+        const nwsByLoc = {};
+        for (const result of nwsResults) {
+            for (const locId of result.locIds) {
+                nwsByLoc[locId] = result.hours;
+            }
+        }
+
+        // Merge: NWS wins where available, Open-Meteo fills the rest
+        for (const omResult of openMeteoResults) {
+            const nwsHours = nwsByLoc[omResult.id] || [];
+            weatherData[omResult.id] = mergeWeatherData(omResult.hours, nwsHours);
+        }
+
+        oceanData = ocean;
+
+        // Log source stats
+        const sampleLoc = weatherData[LOCATIONS[0].id] || [];
+        const nwsCount = sampleLoc.filter(h => h.source === 'nws').length;
+        const omCount = sampleLoc.filter(h => h.source === 'open-meteo').length;
+        console.log(`Weather loaded: ${nwsCount} NWS hours + ${omCount} Open-Meteo hours for ${LOCATIONS[0].name}`);
+    } catch (e) {
+        console.error('Weather fetch error:', e);
+    }
+}
+
 // ===== Init =====
 
 async function init() {
@@ -851,46 +1044,16 @@ async function init() {
     // Render skeleton first
     renderAll();
 
-    // Fetch all weather data in parallel
-    try {
-        const [weatherResults, ocean] = await Promise.all([
-            Promise.all(LOCATIONS.map(async loc => {
-                try {
-                    const json = await fetchWeatherForLocation(loc);
-                    return { id: loc.id, hours: parseHourlyData(json) };
-                } catch (e) {
-                    console.error(`Failed to fetch weather for ${loc.name}:`, e);
-                    return { id: loc.id, hours: [] };
-                }
-            })),
-            fetchOceanTemp(),
-        ]);
-
-        for (const result of weatherResults) {
-            weatherData[result.id] = result.hours;
-        }
-        oceanData = ocean;
-    } catch (e) {
-        console.error('Weather fetch error:', e);
-    }
+    // Fetch all weather data in parallel: Open-Meteo + NWS
+    await fetchAllWeather();
 
     // Re-render with data
     renderAll();
 
     // Auto-refresh every 30 minutes
     setInterval(async () => {
-        try {
-            const results = await Promise.all(LOCATIONS.map(async loc => {
-                const json = await fetchWeatherForLocation(loc);
-                return { id: loc.id, hours: parseHourlyData(json) };
-            }));
-            for (const result of results) {
-                weatherData[result.id] = result.hours;
-            }
-            renderAll();
-        } catch (e) {
-            console.error('Auto-refresh failed:', e);
-        }
+        await fetchAllWeather();
+        renderAll();
     }, 30 * 60 * 1000);
 }
 

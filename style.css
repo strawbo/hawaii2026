@@ -453,6 +453,35 @@ section h2 {
     text-overflow: ellipsis;
 }
 
+.block-nws-text {
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-top: 0.2rem;
+    font-style: italic;
+}
+
+.source-tag {
+    display: inline-block;
+    font-size: 0.55rem;
+    font-weight: 600;
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    vertical-align: middle;
+    margin-left: 0.3rem;
+}
+
+.source-nws {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.source-om {
+    background: #f1f5f9;
+    color: var(--text-muted);
+}
+
 /* ===== Forecast Cards ===== */
 .forecasts { padding-top: 0.5rem; }
 
