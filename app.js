@@ -471,37 +471,61 @@ function weatherDesc(code) {
 }
 
 // Score 0–100: how good is this hour for outdoor activities?
+// Weighted: sunshine (35%), rain (30%), temperature (20%), wind (15%)
 function scoreHour(hourData) {
-    let score = 100;
+    // --- Sunshine score (0–100): inverse of cloud cover ---
+    const sunScore = 100 - hourData.clouds;
 
-    // Temperature: ideal 75–85°F
+    // --- Rain score (0–100): based on ACTUAL precipitation, not just probability ---
+    // Open-Meteo precipitation_probability is often inflated for tropical islands.
+    // We use actual precipitation amount as the primary signal, with probability as a modifier.
+    let rainScore = 100;
+    const precip = hourData.precip || 0;
+    const prob = hourData.precipProb || 0;
+
+    if (precip >= 2.0) {
+        // Heavy rain (>2mm/hr) — bad
+        rainScore = 10;
+    } else if (precip >= 0.5) {
+        // Moderate rain — noticeable
+        rainScore = 35;
+    } else if (precip >= 0.2) {
+        // Light drizzle — barely matters for most activities
+        rainScore = 70;
+    } else if (precip > 0) {
+        // Trace — negligible
+        rainScore = 90;
+    } else {
+        // No actual precipitation — only mild penalty if high probability
+        // (this handles the "45% prob but 0mm" case from Open-Meteo)
+        if (prob >= 70) rainScore = 75;
+        else if (prob >= 50) rainScore = 85;
+        else rainScore = 100;
+    }
+
+    // --- Temperature score (0–100): ideal 75–85°F ---
+    let tempScore = 100;
     const temp = hourData.temp;
-    if (temp < 68) score -= (68 - temp) * 3;
-    else if (temp > 90) score -= (temp - 90) * 4;
-    else if (temp >= 75 && temp <= 85) score += 0; // perfect
-    else if (temp < 75) score -= (75 - temp) * 1;
-    else score -= (temp - 85) * 2;
+    if (temp >= 75 && temp <= 85) {
+        tempScore = 100;
+    } else if (temp < 75) {
+        tempScore = Math.max(0, 100 - (75 - temp) * 5);
+    } else {
+        tempScore = Math.max(0, 100 - (temp - 85) * 8);
+    }
 
-    // Rain: big penalty
-    if (hourData.precip > 0.1) score -= 30;
-    if (hourData.precip > 0.5) score -= 20;
-    if (hourData.precipProb > 50) score -= 15;
-    else if (hourData.precipProb > 30) score -= 8;
+    // --- Wind score (0–100) ---
+    let windScore = 100;
+    const wind = hourData.wind;
+    if (wind <= 8) windScore = 100;
+    else if (wind <= 12) windScore = 85;
+    else if (wind <= 18) windScore = 65;
+    else if (wind <= 25) windScore = 40;
+    else windScore = 15;
 
-    // Clouds: mild penalty
-    if (hourData.clouds > 80) score -= 15;
-    else if (hourData.clouds > 60) score -= 8;
-    else if (hourData.clouds > 40) score -= 3;
-
-    // Wind: moderate penalty for beaches
-    if (hourData.wind > 20) score -= 20;
-    else if (hourData.wind > 15) score -= 10;
-    else if (hourData.wind > 10) score -= 3;
-
-    // UV bonus for beach (but warn if extreme)
-    if (hourData.uv > 10) score -= 5;
-
-    return Math.max(0, Math.min(100, Math.round(score)));
+    // Weighted composite
+    const composite = (sunScore * 0.35) + (rainScore * 0.30) + (tempScore * 0.20) + (windScore * 0.15);
+    return Math.max(0, Math.min(100, Math.round(composite)));
 }
 
 function scoreLabel(score) {
@@ -517,13 +541,15 @@ function weatherNoteClass(score) {
 }
 
 function weatherNoteText(score, data) {
-    if (score >= 75) return `☀️ Great conditions — ${Math.round(data.temp)}°F, ${data.clouds}% clouds`;
+    const sun = 100 - data.clouds;
+    if (score >= 75) return `☀️ Great conditions — ${Math.round(data.temp)}°F, ${sun}% sunshine`;
     if (score >= 50) {
-        if (data.precipProb > 30) return `🌦️ ${data.precipProb}% chance of rain — have a backup plan`;
+        if (data.precip >= 0.5) return `🌧️ Light rain expected (${data.precip.toFixed(1)}mm) — have a backup plan`;
         if (data.wind > 12) return `💨 Breezy at ${Math.round(data.wind)} mph — may affect water activities`;
-        return `⛅ Decent — ${Math.round(data.temp)}°F, ${data.clouds}% clouds`;
+        return `⛅ Decent — ${Math.round(data.temp)}°F, ${sun}% sunshine`;
     }
-    if (data.precip > 0.3) return `🌧️ Rain likely — consider indoor alternatives`;
+    if (data.precip >= 0.5) return `🌧️ Rain expected (${data.precip.toFixed(1)}mm) — consider indoor alternatives`;
+    if (data.clouds > 80) return `☁️ Overcast — check other locations`;
     return `☁️ Not ideal — check other locations`;
 }
 
@@ -751,12 +777,13 @@ function renderRightNow() {
                 <span class="condition-label">mph</span>
             </div>
             <div class="condition-item">
-                <span class="condition-icon">☁️</span>
-                <span class="condition-value">${best.data.clouds}%</span>
+                <span class="condition-icon">☀️</span>
+                <span class="condition-value">${100 - best.data.clouds}%</span>
+                <span class="condition-label">sun</span>
             </div>
             <div class="condition-item">
                 <span class="condition-icon">🌧️</span>
-                <span class="condition-value">${best.data.precipProb}%</span>
+                <span class="condition-value">${best.data.precip > 0 ? best.data.precip.toFixed(1) + 'mm' : '0mm'}</span>
             </div>
             <div class="condition-item">
                 <span class="condition-icon">☀️</span>
@@ -779,7 +806,7 @@ function renderRightNow() {
                     <div class="now-card-desc">${weatherDesc(item.data.code)}</div>
                 </div>
             </div>
-            <div class="now-card-detail">💨 ${Math.round(item.data.wind)} mph · ☁️ ${item.data.clouds}% · 🌧️ ${item.data.precipProb}%</div>
+            <div class="now-card-detail">💨 ${Math.round(item.data.wind)} mph · ☀️ ${100 - item.data.clouds}% · 🌧️ ${item.data.precip > 0 ? item.data.precip.toFixed(1) + 'mm' : '0mm'}</div>
             <span class="score-badge ${sl.cls}">${sl.text}</span>
         </div>`;
     }
@@ -908,12 +935,12 @@ function renderForecasts() {
         let condHtml = '';
         if (daytime.length > 0) {
             const avgWind = Math.round(daytime.reduce((s, h) => s + h.wind, 0) / daytime.length);
-            const avgClouds = Math.round(daytime.reduce((s, h) => s + h.clouds, 0) / daytime.length);
-            const maxRain = Math.max(...daytime.map(h => h.precipProb));
+            const avgSun = Math.round(100 - daytime.reduce((s, h) => s + h.clouds, 0) / daytime.length);
+            const totalRain = daytime.reduce((s, h) => s + (h.precip || 0), 0);
             condHtml = `<div class="forecast-conditions-row">
-                <span class="forecast-cond">☁️ ${avgClouds}%</span>
+                <span class="forecast-cond">☀️ ${avgSun}%</span>
                 <span class="forecast-cond">💨 ${avgWind} mph</span>
-                <span class="forecast-cond">🌧️ ${maxRain}%</span>
+                <span class="forecast-cond">🌧️ ${totalRain > 0 ? totalRain.toFixed(1) + 'mm' : 'dry'}</span>
             </div>`;
         }
 
@@ -973,9 +1000,9 @@ function renderForecasts() {
                         <div class="hour-icon">${weatherIcon(h.code)}</div>
                         <div class="hour-temp">${Math.round(h.temp)}°</div>
                         <div class="hour-detail">
-                            💨${Math.round(h.wind)}<br>
-                            ☁️${h.clouds}%<br>
-                            🌧️${h.precipProb}%
+                            ☀️${100 - h.clouds}%<br>
+                            💨${Math.round(h.wind)}mph<br>
+                            🌧️${h.precip > 0 ? h.precip.toFixed(1) + 'mm' : h.precipProb + '%'}
                         </div>
                         <div class="hour-score ${hsClass}">${score}</div>
                     </div>`;
