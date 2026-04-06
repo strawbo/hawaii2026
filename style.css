@@ -121,6 +121,23 @@ header h1 {
 .day-pill .pill-day { display: block; font-weight: 600; }
 .day-pill .pill-date { display: block; font-size: 0.7rem; opacity: 0.8; }
 
+.pill-score {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 800;
+    margin-top: 0.15rem;
+    padding: 0.05rem 0.35rem;
+    border-radius: 4px;
+}
+
+.pill-score-great { background: #dcfce7; color: #16a34a; }
+.pill-score-good { background: #fef9c3; color: #a16207; }
+.pill-score-fair { background: #fee2e2; color: #dc2626; }
+
+.day-pill.active .pill-score-great { background: rgba(255,255,255,0.3); color: white; }
+.day-pill.active .pill-score-good { background: rgba(255,255,255,0.3); color: white; }
+.day-pill.active .pill-score-fair { background: rgba(255,255,255,0.3); color: white; }
+
 /* ===== Section Headers ===== */
 section { padding: 1rem 1.25rem; }
 section h2 {

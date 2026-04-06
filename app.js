@@ -631,17 +631,37 @@ function getTripDays() {
     return days;
 }
 
+// Home base location for day score: Poipu through Fri, Hanalei for Sat/Sun
+function getHomeBase(dateStr) {
+    // Apr 18 (Sat) and Apr 19 (Sun) = Princeville/Hanalei
+    return (dateStr === '2026-04-18' || dateStr === '2026-04-19') ? 'hanalei' : 'poipu';
+}
+
 function renderDayNav() {
     const nav = document.getElementById('dayNav');
     const days = getTripDays();
     const today = getCurrentHawaiiDate();
+    const hasData = Object.keys(weatherData).length > 0;
 
     nav.innerHTML = days.map(d => {
         const isActive = d.iso === selectedDate;
         const isToday = d.iso === today;
+
+        // Day score from home base
+        let scoreHtml = '';
+        if (hasData) {
+            const baseId = getHomeBase(d.iso);
+            const dayScore = computeDayScore(baseId, d.iso);
+            if (dayScore !== null) {
+                const cls = dayScore >= 75 ? 'pill-score-great' : dayScore >= 50 ? 'pill-score-good' : 'pill-score-fair';
+                scoreHtml = `<span class="pill-score ${cls}">${dayScore}</span>`;
+            }
+        }
+
         return `<button class="day-pill ${isActive ? 'active' : ''}" data-date="${d.iso}">
             <span class="pill-day">${d.dayName}</span>
             <span class="pill-date">${isToday ? 'Today' : 'Apr ' + d.dateNum}</span>
+            ${scoreHtml}
         </button>`;
     }).join('');
 
