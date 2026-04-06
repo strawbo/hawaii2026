@@ -316,103 +316,142 @@ section h2 {
 .ocean-chip .ocean-temp { font-weight: 700; color: var(--ocean); }
 .ocean-chip .ocean-label { color: var(--text-secondary); font-size: 0.75rem; }
 
-/* ===== Itinerary ===== */
+/* ===== Itinerary / Where's Best ===== */
 .itinerary { padding-top: 0.75rem; }
 
-.day-theme {
+.day-note {
     font-size: 0.85rem;
     color: var(--text-secondary);
     margin-bottom: 1rem;
-    padding-left: 0.25rem;
-}
-
-.activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.activity-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 0.85rem 1rem;
-    box-shadow: var(--shadow);
-    display: flex;
-    gap: 0.75rem;
-}
-
-.activity-time-col {
-    flex-shrink: 0;
-    width: 56px;
-    text-align: center;
-}
-
-.activity-time {
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--accent);
-}
-
-.activity-weather-mini {
-    font-size: 1.2rem;
-    margin-top: 0.2rem;
-}
-
-.activity-weather-temp {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-}
-
-.activity-body { flex: 1; min-width: 0; }
-
-.activity-name {
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 0.15rem;
-}
-
-.activity-desc {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    padding: 0.6rem 0.75rem;
+    background: var(--accent-light);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent);
     line-height: 1.45;
 }
 
-.activity-tag {
-    display: inline-block;
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 0.15rem 0.5rem;
-    border-radius: 6px;
-    margin-top: 0.4rem;
+.block-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
 }
 
-.tag-beach { background: #dbeafe; color: #2563eb; }
-.tag-hike { background: #dcfce7; color: #16a34a; }
-.tag-food { background: #fef3c7; color: #b45309; }
-.tag-sightseeing { background: #f3e8ff; color: #7c3aed; }
-.tag-adventure { background: #ffe4e6; color: #e11d48; }
-.tag-snorkel { background: #ccfbf1; color: #0d9488; }
-.tag-family { background: #fce7f3; color: #be185d; }
-.tag-shopping { background: #e8e8e8; color: #555; }
+.block-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
 
-.activity-weather-note {
-    margin-top: 0.4rem;
-    font-size: 0.75rem;
-    padding: 0.3rem 0.5rem;
-    border-radius: 6px;
+.block-header {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    background: #f8fafc;
+    border-bottom: 1px solid var(--border);
 }
 
-.weather-great { background: var(--green-light); color: var(--green); }
-.weather-ok { background: var(--yellow-light); color: var(--yellow); }
-.weather-poor { background: var(--red-light); color: var(--red); }
+.block-time {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.block-hours {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.block-body {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+}
+
+.block-score-ring {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-weight: 800;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+.block-score-ring::after {
+    content: attr(data-label);
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 1px;
+}
+
+.block-rec { flex: 1; min-width: 0; }
+
+.block-rec-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.block-rec-area {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.block-rec-conditions {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.3rem;
+}
+
+.block-runner-up {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+.block-comparison {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid var(--border);
+}
+
+.comp-item {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    border-right: 1px solid var(--border);
+}
+
+.comp-item:last-child { border-right: none; }
+
+.comp-item.comp-active {
+    background: var(--green-light);
+}
+
+.comp-score {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.comp-name {
+    display: block;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 /* ===== Forecast Cards ===== */
 .forecasts { padding-top: 0.5rem; }

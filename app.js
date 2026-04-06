@@ -99,305 +99,50 @@ const LOCATIONS = [
     },
 ];
 
-// Day-by-day itinerary
-const ITINERARY = [
-    {
-        date: '2026-04-12',
-        title: 'Arrival Day',
-        dayLabel: 'Sun',
-        theme: 'Aloha! Settle into Waiohai and soak in the South Shore sunset.',
-        activities: [
-            {
-                time: 'Evening',
-                hour: 20,
-                name: 'Arrive & Check In',
-                desc: 'Flight lands 9:29 PM. Pick up rental car, drive 30 min to Waiohai in Poipu.',
-                location: 'poipu',
-                type: 'family',
-            },
-        ],
-    },
-    {
-        date: '2026-04-13',
-        title: 'South Shore Day',
-        dayLabel: 'Mon',
-        theme: 'Get your bearings at home base. Easy beach day after travel.',
-        activities: [
-            {
-                time: 'Morning',
-                hour: 9,
-                name: 'Poipu Beach Snorkeling',
-                desc: 'Walk from Waiohai. Snorkel the left side for turtles & tropical fish. Monk seals often rest on the beach.',
-                location: 'poipu',
-                type: 'snorkel',
-            },
-            {
-                time: 'Midday',
-                hour: 12,
-                name: 'Spouting Horn & Koloa Town',
-                desc: 'Quick drive to the blowhole (free!), then lunch in Old Koloa Town. Try Koloa Fish Market or Pizzetta.',
-                location: 'poipu',
-                type: 'sightseeing',
-            },
-            {
-                time: 'Afternoon',
-                hour: 15,
-                name: 'Shipwreck Beach & Mahaulepu Trail',
-                desc: 'Dramatic cliffs and tide pools. Walk the coastal trail east from the Grand Hyatt. Incredible views.',
-                location: 'shipwreck',
-                type: 'hike',
-            },
-            {
-                time: 'Sunset',
-                hour: 18,
-                name: 'Sunset Dinner in Poipu',
-                desc: 'Brennecke\'s Beach Broiler (casual, great lanai views) or Tidepools at the Grand Hyatt for a splurge. Koloa Fish Market for takeout on the beach.',
-                location: 'poipu',
-                type: 'food',
-            },
-        ],
-    },
-    {
-        date: '2026-04-14',
-        title: 'Canyon & West Side',
-        dayLabel: 'Tue',
-        theme: 'Waimea Canyon in the morning (clearest skies), west beaches in the afternoon.',
-        activities: [
-            {
-                time: 'Early AM',
-                hour: 7,
-                name: 'Waimea Canyon Lookouts',
-                desc: 'Leave early — clouds build by late morning. Hit Waimea Canyon Lookout and Pu\'u o Kila at the end of the road. Bring layers, it\'s cooler up top.',
-                location: 'waimea-canyon',
-                type: 'sightseeing',
-            },
-            {
-                time: 'Late Morning',
-                hour: 10,
-                name: 'Cliff & Canyon Trails',
-                desc: 'Short hikes: Canyon Trail (0.3 mi) for a waterfall view, or Cliff Trail for dramatic canyon edge. Kid-friendly.',
-                location: 'waimea-canyon',
-                type: 'hike',
-            },
-            {
-                time: 'Lunch',
-                hour: 12,
-                name: 'Waimea Town',
-                desc: 'Grab shave ice at Jo-Jo\'s (legendary) and poke bowls in town. Historic Waimea — Captain Cook landed here.',
-                location: 'salt-pond',
-                type: 'food',
-            },
-            {
-                time: 'Afternoon',
-                hour: 14,
-                name: 'Salt Pond Beach',
-                desc: 'Calm, protected cove perfect for the whole family. Great snorkeling, tide pools on the far end. Often uncrowded.',
-                location: 'salt-pond',
-                type: 'beach',
-            },
-        ],
-    },
-    {
-        date: '2026-04-15',
-        title: 'East Side Adventure',
-        dayLabel: 'Wed',
-        theme: 'Sleeping Giant hike in the cool morning, then beaches and Kapa\'a town.',
-        activities: [
-            {
-                time: 'Early AM',
-                hour: 7,
-                name: 'Sleeping Giant Hike',
-                desc: 'East side trail (Nounou East) is most popular — 1.75 mi to the top. Moderate difficulty. Panoramic 360° views of the coast. Bring water!',
-                location: 'sleeping-giant',
-                type: 'hike',
-            },
-            {
-                time: 'Late Morning',
-                hour: 10,
-                name: 'Lydgate Beach Park',
-                desc: 'Protected lava-rock pools make this the easiest snorkeling on the island. Great for all skill levels. Playground nearby.',
-                location: 'lydgate',
-                type: 'snorkel',
-            },
-            {
-                time: 'Afternoon',
-                hour: 14,
-                name: 'Kapa\'a Coastal Bike Path',
-                desc: 'Rent bikes and ride the paved coastal path — stunning ocean views. Goes for miles along the east shore. Rent at Coconut Coasters.',
-                location: 'kapaa',
-                type: 'adventure',
-            },
-            {
-                time: 'Evening',
-                hour: 18,
-                name: 'Kapa\'a Town Dinner',
-                desc: 'Tiki Tacos (casual, great fish tacos), or Hukilau Lanai for a nicer sit-down. Browse the shops on the main drag.',
-                location: 'kapaa',
-                type: 'food',
-            },
-        ],
-    },
-    {
-        date: '2026-04-16',
-        title: 'North Shore Day',
-        dayLabel: 'Thu',
-        theme: 'Hanalei and Tunnels — the crown jewels of Kauai. Go early for parking.',
-        activities: [
-            {
-                time: 'Early AM',
-                hour: 7,
-                name: 'Tunnels Beach (Makua)',
-                desc: 'Get there by 7:30 for parking (seriously). World-class snorkeling over massive reef. Calm mornings are best. The reef starts right at the sand.',
-                location: 'tunnels',
-                type: 'snorkel',
-            },
-            {
-                time: 'Late Morning',
-                hour: 10,
-                name: 'Ke\'e Beach & Kalalau Trailhead',
-                desc: 'End of the road. Quick peek at the Na Pali coast from the first 0.25 mi of Kalalau Trail. Ke\'e Beach is gorgeous (needs Ha\'ena parking reservation).',
-                location: 'tunnels',
-                type: 'beach',
-            },
-            {
-                time: 'Lunch',
-                hour: 12,
-                name: 'Hanalei Town',
-                desc: 'Hanalei Bread Company for sandwiches, or Postcards Cafe. Browse art galleries and surf shops. Get shave ice at Wishing Well.',
-                location: 'hanalei',
-                type: 'food',
-            },
-            {
-                time: 'Afternoon',
-                hour: 14,
-                name: 'Hanalei Bay',
-                desc: 'The iconic bay — swim, SUP, or just hang on the beach. Pier is great for photos. Mountain backdrop is unreal.',
-                location: 'hanalei',
-                type: 'beach',
-            },
-        ],
-    },
-    {
-        date: '2026-04-17',
-        title: 'Adventure Day',
-        dayLabel: 'Fri',
-        theme: 'Na Pali Coast boat tour or kayak adventure — pick your pace.',
-        activities: [
-            {
-                time: 'Morning',
-                hour: 8,
-                name: 'Na Pali Coast Boat Tour',
-                desc: 'Book with Captain Andy\'s or Holo Holo Charters. Catamaran or zodiac. Morning tours have calmer seas. You\'ll see dolphins, sea caves, waterfalls. Book ASAP — sells out.',
-                location: 'poipu',
-                type: 'adventure',
-            },
-            {
-                time: 'Alt Morning',
-                hour: 8,
-                name: 'OR: Kayak Wailua River to Secret Falls',
-                desc: 'Alternative if boats are sold out. Paddle up Wailua River, short hike to 100-ft waterfall. Book with Wailua Kayak Adventures. ~5 hours total.',
-                location: 'lydgate',
-                type: 'adventure',
-            },
-            {
-                time: 'Afternoon',
-                hour: 14,
-                name: 'Recovery Beach Time',
-                desc: 'Head back to Poipu for easy beach time. Pool at Waiohai is great for decompressing after a big morning.',
-                location: 'poipu',
-                type: 'beach',
-            },
-            {
-                time: 'Evening',
-                hour: 18,
-                name: 'Brennecke\'s Beach Broiler',
-                desc: 'Casual spot right across from Poipu Beach. Great burgers, fish, and sunset views from the upstairs lanai.',
-                location: 'poipu',
-                type: 'food',
-            },
-        ],
-    },
-    {
-        date: '2026-04-18',
-        title: 'Move to Princeville',
-        dayLabel: 'Sat',
-        theme: 'Check out of Waiohai, drive to Princeville Airbnb. Explore the North Shore from your new base.',
-        activities: [
-            {
-                time: 'Morning',
-                hour: 8,
-                name: 'Last South Shore Morning',
-                desc: 'One more Poipu snorkel or beach walk before checking out. Grab breakfast at Little Fish Coffee.',
-                location: 'poipu',
-                type: 'beach',
-            },
-            {
-                time: 'Late Morning',
-                hour: 11,
-                name: 'Check Out & Drive North',
-                desc: 'Check out of Waiohai. Drive to Princeville (~1 hr). Stop in Kapaa for lunch if hungry.',
-                location: 'kapaa',
-                type: 'family',
-            },
-            {
-                time: 'Afternoon',
-                hour: 14,
-                name: 'Queen\'s Bath or Hideaways Beach',
-                desc: 'Queen\'s Bath: stunning tidal pool (check swell — dangerous in high surf). Hideaways: secluded beach below the St. Regis, steep trail down.',
-                location: 'hanalei',
-                type: 'adventure',
-            },
-            {
-                time: 'Evening',
-                hour: 18,
-                name: 'Hanalei Town Dinner',
-                desc: 'Tahiti Nui (legendary tiki bar + live music), Postcards Cafe (upscale), or Hanalei Dolphin for fish tacos on the river.',
-                location: 'hanalei',
-                type: 'food',
-            },
-        ],
-    },
-    {
-        date: '2026-04-19',
-        title: 'Last Day — Late Flight',
-        dayLabel: 'Sun',
-        theme: 'Full day from Princeville! Flight doesn\'t leave until 10:29 PM. Soak up the North Shore.',
-        activities: [
-            {
-                time: 'Morning',
-                hour: 8,
-                name: 'Tunnels or Hanalei Bay',
-                desc: 'One last North Shore session. Tunnels for snorkeling (go early), or Hanalei Bay for a relaxed swim with the mountain backdrop.',
-                location: 'tunnels',
-                type: 'snorkel',
-            },
-            {
-                time: 'Late Morning',
-                hour: 11,
-                name: 'Check Out & Explore',
-                desc: 'Check out of the Airbnb. Drive the scenic road — stop at Kilauea Lighthouse for seabird views.',
-                location: 'hanalei',
-                type: 'sightseeing',
-            },
-            {
-                time: 'Afternoon',
-                hour: 14,
-                name: 'Anini Beach',
-                desc: 'Calm, protected reef beach between Princeville and Kilauea. Great last snorkel spot for the family.',
-                location: 'hanalei',
-                type: 'beach',
-            },
-            {
-                time: 'Evening',
-                hour: 17,
-                name: 'Dinner & Drive to Airport',
-                desc: 'Grab dinner at Duke\'s Kauai in Lihue (right on Kalapaki Beach) on the way to LIH. Allow 30 min from Lihue to airport. Princeville to Lihue is ~45 min.',
-                location: 'lydgate',
-                type: 'food',
-            },
-        ],
-    },
+// Time blocks for weather comparison
+const TIME_BLOCKS = [
+    { label: 'Morning', hours: [8, 9, 10, 11] },
+    { label: 'Midday', hours: [11, 12, 13, 14] },
+    { label: 'Afternoon', hours: [14, 15, 16, 17, 18] },
 ];
+
+// Special day notes (non-weather info)
+const DAY_NOTES = {
+    '2026-04-12': { title: 'Arrival Day', note: 'Flight lands 9:29 PM. Pick up rental car, 30 min drive to Waiohai in Poipu.' },
+    '2026-04-18': { title: 'Move to Princeville', note: 'Check out of Waiohai in the morning. Drive to Princeville Airbnb (~1 hr). Based on the North Shore tonight.' },
+    '2026-04-19': { title: 'Last Day — Late Flight', note: 'Check out of Princeville Airbnb. Flight departs LIH at 10:29 PM — full day to enjoy! Allow 45 min drive from Princeville to airport.' },
+};
+
+// Compute average score for a location during a time block on a given date
+function scoreBlock(locId, dateStr, hourRange) {
+    const hours = weatherData[locId] || [];
+    const matching = hours.filter(h => {
+        if (!h.time.startsWith(dateStr)) return false;
+        const hr = parseInt(h.time.split('T')[1].split(':')[0]);
+        return hourRange.includes(hr);
+    });
+    if (matching.length === 0) return null;
+    const scores = matching.map(h => scoreHour(h));
+    return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+}
+
+// Get representative weather for a location during a time block
+function blockWeather(locId, dateStr, hourRange) {
+    const hours = weatherData[locId] || [];
+    const matching = hours.filter(h => {
+        if (!h.time.startsWith(dateStr)) return false;
+        const hr = parseInt(h.time.split('T')[1].split(':')[0]);
+        return hourRange.includes(hr);
+    });
+    if (matching.length === 0) return null;
+    // Use the middle hour as representative
+    const mid = matching[Math.floor(matching.length / 2)];
+    const avgTemp = Math.round(matching.reduce((s, h) => s + h.temp, 0) / matching.length);
+    const avgWind = Math.round(matching.reduce((s, h) => s + h.wind, 0) / matching.length);
+    const avgSun = Math.round(100 - matching.reduce((s, h) => s + h.clouds, 0) / matching.length);
+    const totalPrecip = matching.reduce((s, h) => s + (h.precip || 0), 0);
+    return { code: mid.code, temp: avgTemp, wind: avgWind, sun: avgSun, precip: totalPrecip };
+}
 
 // ===== Weather API =====
 
@@ -534,24 +279,6 @@ function scoreLabel(score) {
     return { text: 'Fair', cls: 'score-fair' };
 }
 
-function weatherNoteClass(score) {
-    if (score >= 75) return 'weather-great';
-    if (score >= 50) return 'weather-ok';
-    return 'weather-poor';
-}
-
-function weatherNoteText(score, data) {
-    const sun = 100 - data.clouds;
-    if (score >= 75) return `☀️ Great conditions — ${Math.round(data.temp)}°F, ${sun}% sunshine`;
-    if (score >= 50) {
-        if (data.precip >= 0.5) return `🌧️ Light rain expected (${data.precip.toFixed(1)}mm) — have a backup plan`;
-        if (data.wind > 12) return `💨 Breezy at ${Math.round(data.wind)} mph — may affect water activities`;
-        return `⛅ Decent — ${Math.round(data.temp)}°F, ${sun}% sunshine`;
-    }
-    if (data.precip >= 0.5) return `🌧️ Rain expected (${data.precip.toFixed(1)}mm) — consider indoor alternatives`;
-    if (data.clouds > 80) return `☁️ Overcast — check other locations`;
-    return `☁️ Not ideal — check other locations`;
-}
 
 // ===== Data Processing =====
 
@@ -861,50 +588,103 @@ function renderOceanBar() {
 function renderItinerary() {
     const titleEl = document.getElementById('itineraryTitle');
     const container = document.getElementById('itineraryContent');
+    const hasData = Object.keys(weatherData).length > 0;
+    const homeBase = getHomeBase(selectedDate);
+    const homeBaseName = homeBase === 'hanalei' ? 'Hanalei' : 'Poipu';
 
-    const dayData = ITINERARY.find(d => d.date === selectedDate);
-    if (!dayData) {
-        titleEl.textContent = 'No plans for this day';
-        container.innerHTML = '';
+    // Day note (arrival, move day, departure)
+    const dayNote = DAY_NOTES[selectedDate];
+    const title = dayNote ? dayNote.title : 'Where\'s the Best Weather?';
+    titleEl.textContent = title;
+
+    let html = '';
+
+    // Show day note if exists
+    if (dayNote) {
+        html += `<div class="day-note">${dayNote.note}</div>`;
+    }
+
+    if (!hasData) {
+        html += '<div class="loading-pulse">Loading weather comparison...</div>';
+        container.innerHTML = html;
         return;
     }
 
-    titleEl.textContent = dayData.title;
+    // Arrival day — no weather comparison needed
+    if (selectedDate === '2026-04-12') {
+        container.innerHTML = html;
+        return;
+    }
 
-    let html = `<div class="day-theme">${dayData.theme}</div><div class="activity-list">`;
+    // For each time block, rank all locations
+    html += '<div class="block-list">';
 
-    for (const act of dayData.activities) {
-        // Get weather for this activity's time
-        const locHours = weatherData[act.location] || [];
-        const actHour = locHours.find(h => {
-            return h.time.startsWith(selectedDate) &&
-                parseInt(h.time.split('T')[1].split(':')[0]) === act.hour;
-        });
+    for (const block of TIME_BLOCKS) {
+        // Score every location for this block
+        const locScores = LOCATIONS.map(loc => {
+            const score = scoreBlock(loc.id, selectedDate, block.hours);
+            const weather = blockWeather(loc.id, selectedDate, block.hours);
+            return { loc, score, weather };
+        }).filter(x => x.score !== null).sort((a, b) => b.score - a.score);
 
-        let weatherHtml = '';
-        let weatherNoteHtml = '';
-        if (actHour) {
-            const score = scoreHour(actHour);
-            weatherHtml = `
-                <div class="activity-weather-mini">${weatherIcon(actHour.code)}</div>
-                <div class="activity-weather-temp">${Math.round(actHour.temp)}°F</div>
-            `;
-            weatherNoteHtml = `<div class="activity-weather-note ${weatherNoteClass(score)}">
-                ${weatherNoteText(score, actHour)}
-            </div>`;
+        if (locScores.length === 0) continue;
+
+        const best = locScores[0];
+        const homeScore = locScores.find(x => x.loc.id === homeBase);
+        const diff = homeScore ? best.score - homeScore.score : 0;
+
+        // If home base is within 5 points of the best, recommend staying
+        const stayHome = diff <= 5;
+        const recLoc = stayHome ? (homeScore || best) : best;
+        const recName = stayHome ? homeBaseName : best.loc.name;
+        const recArea = stayHome ? (homeBase === 'hanalei' ? 'North Shore' : 'South Shore') : best.loc.area;
+
+        const ringCls = scoreRingClass(recLoc.score);
+        const w = recLoc.weather;
+
+        // Build the runner-up line if there's a notably better spot
+        let runnerUpHtml = '';
+        if (!stayHome && homeScore) {
+            runnerUpHtml = `<div class="block-runner-up">${homeBaseName} is ${homeScore.score} · ${diff} pts better at ${recName}</div>`;
+        } else if (stayHome && locScores.length > 1) {
+            // Show if everywhere else is similar or worse
+            const second = locScores.find(x => x.loc.id !== homeBase) || locScores[1];
+            if (second && best.score - second.score <= 3) {
+                runnerUpHtml = `<div class="block-runner-up">Similar everywhere — stay close to home</div>`;
+            }
         }
 
-        html += `<div class="activity-card">
-            <div class="activity-time-col">
-                <div class="activity-time">${act.time}</div>
-                ${weatherHtml}
+        // Show top 3 as comparison dots
+        const top3 = locScores.slice(0, 4);
+        let comparisonHtml = '<div class="block-comparison">';
+        for (const item of top3) {
+            const isRec = item.loc.id === recLoc.loc.id;
+            comparisonHtml += `<div class="comp-item ${isRec ? 'comp-active' : ''}">
+                <span class="comp-score">${item.score}</span>
+                <span class="comp-name">${item.loc.name.split('(')[0].split(' Beach')[0].trim()}</span>
+            </div>`;
+        }
+        comparisonHtml += '</div>';
+
+        html += `<div class="block-card">
+            <div class="block-header">
+                <div class="block-time">${block.label}</div>
+                <div class="block-hours">${block.hours[0] > 12 ? (block.hours[0] - 12) : block.hours[0]}${block.hours[0] >= 12 ? 'p' : 'a'}–${block.hours[block.hours.length - 1] > 12 ? (block.hours[block.hours.length - 1] - 12) : block.hours[block.hours.length - 1]}${block.hours[block.hours.length - 1] >= 12 ? 'p' : 'a'}</div>
             </div>
-            <div class="activity-body">
-                <div class="activity-name">${act.name}</div>
-                <div class="activity-desc">${act.desc}</div>
-                <span class="activity-tag tag-${act.type}">${act.type}</span>
-                ${weatherNoteHtml}
+            <div class="block-body">
+                <div class="block-score-ring ${ringCls}" data-label="${scoreRingLabel(recLoc.score)}">
+                    ${recLoc.score}
+                </div>
+                <div class="block-rec">
+                    <div class="block-rec-name">${stayHome ? 'Stay in ' + homeBaseName : 'Head to ' + recName}</div>
+                    <div class="block-rec-area">${recArea}</div>
+                    ${w ? `<div class="block-rec-conditions">
+                        ${weatherIcon(w.code)} ${w.temp}°F · ☀️ ${w.sun}% · 💨 ${w.wind}mph${w.precip > 0 ? ' · 🌧️ ' + w.precip.toFixed(1) + 'mm' : ''}
+                    </div>` : ''}
+                    ${runnerUpHtml}
+                </div>
             </div>
+            ${comparisonHtml}
         </div>`;
     }
 
