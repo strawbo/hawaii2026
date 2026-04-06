@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="googlebot" content="noindex, nofollow">
+    <title>Kauai 2026 — Nielson Family</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌺</text></svg>">
+</head>
+<body>
+    <header>
+        <div class="header-top">
+            <h1>Kauai 2026</h1>
+            <span class="header-badge">Nielson Family</span>
+        </div>
+        <p class="header-dates">Apr 12–19 &middot; Waiohai, Poipu</p>
+    </header>
+
+    <nav class="day-nav" id="dayNav"></nav>
+
+    <!-- Right Now section — best spot based on live weather -->
+    <section class="right-now" id="rightNow">
+        <div class="section-header">
+            <h2>Right Now</h2>
+            <span class="live-dot"></span>
+        </div>
+        <div id="rightNowContent" class="right-now-content">
+            <div class="loading-pulse">Fetching live weather...</div>
+        </div>
+    </section>
+
+    <!-- Ocean conditions -->
+    <section class="ocean-bar" id="oceanBar">
+        <div class="ocean-items" id="oceanItems"></div>
+    </section>
+
+    <!-- Today's itinerary -->
+    <section class="itinerary" id="itinerary">
+        <h2 id="itineraryTitle">Today's Plan</h2>
+        <div id="itineraryContent"></div>
+    </section>
+
+    <!-- Location forecasts -->
+    <section class="forecasts" id="forecasts">
+        <h2>Hourly Forecast by Location</h2>
+        <div id="forecastCards"></div>
+    </section>
+
+    <footer>
+        <p>Weather via <a href="https://open-meteo.com/" target="_blank">Open-Meteo</a> &middot; Updates every load</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
