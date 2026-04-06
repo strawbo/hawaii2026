@@ -407,18 +407,51 @@ section h2 {
     margin-bottom: 0.75rem;
     box-shadow: var(--shadow);
     overflow: hidden;
+    transition: border-color 0.2s;
 }
+
+.forecast-card.rank-1 { border-color: #86efac; border-width: 2px; }
+.forecast-card.rank-2 { border-color: #bbf7d0; }
+.forecast-card.rank-3 { border-color: #d1fae5; }
 
 .forecast-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 0.85rem 1rem;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    gap: 0.75rem;
 }
 
 .forecast-header:active { background: #f8f9fa; }
+
+.forecast-score-ring {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    font-weight: 800;
+    font-size: 1.15rem;
+    line-height: 1;
+    position: relative;
+}
+
+.forecast-score-ring::after {
+    content: attr(data-label);
+    font-size: 0.55rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-top: 1px;
+}
+
+.score-ring-great { background: var(--green-light); color: var(--green); border: 2.5px solid var(--green); }
+.score-ring-good { background: var(--yellow-light); color: var(--yellow); border: 2.5px solid var(--yellow); }
+.score-ring-fair { background: var(--red-light); color: var(--red); border: 2.5px solid var(--red); }
 
 .forecast-loc-info {
     flex: 1;
@@ -435,6 +468,21 @@ section h2 {
     color: var(--text-muted);
 }
 
+.forecast-conditions-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.forecast-cond {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
 .forecast-summary {
     display: flex;
     align-items: center;
@@ -449,7 +497,6 @@ section h2 {
     font-size: 0.8rem;
     color: var(--text-muted);
     transition: transform 0.2s;
-    margin-left: 0.5rem;
 }
 
 .forecast-card.expanded .forecast-chevron { transform: rotate(180deg); }
@@ -474,6 +521,13 @@ section h2 {
     min-width: 58px;
 }
 
+.hour-col.sunrise-col, .hour-col.sunset-col {
+    min-width: 50px;
+    padding: 0.5rem 0.3rem;
+    opacity: 0.7;
+    border-left: 2px dashed #fbbf24;
+}
+
 .hour-time {
     font-size: 0.7rem;
     font-weight: 600;
@@ -494,6 +548,19 @@ section h2 {
     color: var(--text-muted);
     line-height: 1.4;
 }
+
+.hour-score {
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-top: 0.2rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.hour-score-great { background: var(--green-light); color: var(--green); }
+.hour-score-good { background: var(--yellow-light); color: var(--yellow); }
+.hour-score-fair { background: var(--red-light); color: var(--red); }
 
 .hour-col.best-hour {
     background: var(--green-light);

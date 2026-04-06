@@ -150,8 +150,8 @@ const ITINERARY = [
             {
                 time: 'Sunset',
                 hour: 18,
-                name: 'Beach House Restaurant',
-                desc: 'Best sunset on the south shore. Reserve ahead or grab a spot at the bar. Right on the water.',
+                name: 'Sunset Dinner in Poipu',
+                desc: 'Brennecke\'s Beach Broiler (casual, great lanai views) or Tidepools at the Grand Hyatt for a splurge. Koloa Fish Market for takeout on the beach.',
                 location: 'poipu',
                 type: 'food',
             },
@@ -319,40 +319,40 @@ const ITINERARY = [
     },
     {
         date: '2026-04-18',
-        title: 'Flex / Best-of Day',
+        title: 'Move to Princeville',
         dayLabel: 'Sat',
-        theme: 'Revisit your favorites or hit what you missed. Check weather for the best spot!',
+        theme: 'Check out of Waiohai, drive to Princeville Airbnb. Explore the North Shore from your new base.',
         activities: [
             {
                 time: 'Morning',
                 hour: 8,
-                name: 'Weather-Based Pick',
-                desc: 'Check the forecast above! North Shore clear? Go back to Tunnels. West side sunny? Hit Polihale for the most remote beach on earth.',
+                name: 'Last South Shore Morning',
+                desc: 'One more Poipu snorkel or beach walk before checking out. Grab breakfast at Little Fish Coffee.',
                 location: 'poipu',
                 type: 'beach',
             },
             {
-                time: 'Midday',
+                time: 'Late Morning',
                 hour: 11,
-                name: 'Allerton / McBryde Garden (NTBG)',
-                desc: 'Stunning botanical garden in Poipu. The Allerton tour is the famous one (Jurassic Park scenes filmed here). Book the guided tour in advance.',
-                location: 'poipu',
-                type: 'sightseeing',
+                name: 'Check Out & Drive North',
+                desc: 'Check out of Waiohai. Drive to Princeville (~1 hr). Stop in Kapaa for lunch if hungry.',
+                location: 'kapaa',
+                type: 'family',
             },
             {
                 time: 'Afternoon',
                 hour: 14,
-                name: 'Poipu Pool & Beach',
-                desc: 'Soak up final full afternoon at Waiohai pool and Poipu Beach. Grab açaí bowls from Living Foods.',
-                location: 'poipu',
-                type: 'family',
+                name: 'Queen\'s Bath or Hideaways Beach',
+                desc: 'Queen\'s Bath: stunning tidal pool (check swell — dangerous in high surf). Hideaways: secluded beach below the St. Regis, steep trail down.',
+                location: 'hanalei',
+                type: 'adventure',
             },
             {
-                time: 'Sunset',
+                time: 'Evening',
                 hour: 18,
-                name: 'Merriman\'s Fish House',
-                desc: 'Upscale-casual farm-to-table in Poipu. Excellent fish, great cocktails. One of the best restaurants on the island. Reserve ahead.',
-                location: 'poipu',
+                name: 'Hanalei Town Dinner',
+                desc: 'Tahiti Nui (legendary tiki bar + live music), Postcards Cafe (upscale), or Hanalei Dolphin for fish tacos on the river.',
+                location: 'hanalei',
                 type: 'food',
             },
         ],
@@ -361,37 +361,37 @@ const ITINERARY = [
         date: '2026-04-19',
         title: 'Last Day — Late Flight',
         dayLabel: 'Sun',
-        theme: 'Full day to enjoy! Flight doesn\'t leave until 10:29 PM.',
+        theme: 'Full day from Princeville! Flight doesn\'t leave until 10:29 PM. Soak up the North Shore.',
         activities: [
             {
                 time: 'Morning',
                 hour: 8,
-                name: 'One Last Snorkel',
-                desc: 'Hit Poipu Beach or Lydgate one more time. Make it count!',
-                location: 'poipu',
+                name: 'Tunnels or Hanalei Bay',
+                desc: 'One last North Shore session. Tunnels for snorkeling (go early), or Hanalei Bay for a relaxed swim with the mountain backdrop.',
+                location: 'tunnels',
                 type: 'snorkel',
             },
             {
                 time: 'Late Morning',
                 hour: 11,
-                name: 'Checkout & Pack',
-                desc: 'Check out of Waiohai (usually 11 AM). Store bags if needed.',
-                location: 'poipu',
-                type: 'family',
+                name: 'Check Out & Explore',
+                desc: 'Check out of the Airbnb. Drive the scenic road — stop at Kilauea Lighthouse for seabird views.',
+                location: 'hanalei',
+                type: 'sightseeing',
             },
             {
                 time: 'Afternoon',
-                hour: 13,
-                name: 'Kukui\'ula Shopping Village',
-                desc: 'Last-minute shopping and souvenirs in Poipu. Art galleries, local goods, great açaí.',
-                location: 'poipu',
-                type: 'shopping',
+                hour: 14,
+                name: 'Anini Beach',
+                desc: 'Calm, protected reef beach between Princeville and Kilauea. Great last snorkel spot for the family.',
+                location: 'hanalei',
+                type: 'beach',
             },
             {
-                time: 'Late PM',
-                hour: 16,
-                name: 'Kalapaki Beach & Lihue',
-                desc: 'Beach near the airport. Grab dinner at Duke\'s Kauai (right on the beach) before heading to LIH. Allow 30 min to airport.',
+                time: 'Evening',
+                hour: 17,
+                name: 'Dinner & Drive to Airport',
+                desc: 'Grab dinner at Duke\'s Kauai in Lihue (right on Kalapaki Beach) on the way to LIH. Allow 30 min from Lihue to airport. Princeville to Lihue is ~45 min.',
                 location: 'lydgate',
                 type: 'food',
             },
@@ -554,11 +554,52 @@ function getHoursForDate(hours, dateStr) {
 }
 
 function getDaytimeHours(dayHours) {
-    // 6 AM to 8 PM Hawaii time
+    // 8 AM to 8 PM Hawaii time
     return dayHours.filter(h => {
         const hour = parseInt(h.time.split('T')[1].split(':')[0]);
-        return hour >= 6 && hour <= 20;
+        return hour >= 8 && hour <= 20;
     });
+}
+
+// Sunrise/sunset times for Kauai in mid-April (approximate, varies by ~1 min/day)
+const SUN_TIMES = {
+    '2026-04-12': { rise: '6:23', set: '6:51' },
+    '2026-04-13': { rise: '6:22', set: '6:51' },
+    '2026-04-14': { rise: '6:21', set: '6:52' },
+    '2026-04-15': { rise: '6:20', set: '6:52' },
+    '2026-04-16': { rise: '6:19', set: '6:52' },
+    '2026-04-17': { rise: '6:19', set: '6:53' },
+    '2026-04-18': { rise: '6:18', set: '6:53' },
+    '2026-04-19': { rise: '6:17', set: '6:54' },
+};
+
+// Compute average daytime score for a location on a given date
+function computeDayScore(locId, dateStr) {
+    const hours = weatherData[locId] || [];
+    const dayHours = getHoursForDate(hours, dateStr);
+    const daytime = getDaytimeHours(dayHours);
+    if (daytime.length === 0) return null;
+    const scores = daytime.map(h => scoreHour(h));
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    return Math.round(avg);
+}
+
+function scoreRingClass(score) {
+    if (score >= 75) return 'score-ring-great';
+    if (score >= 50) return 'score-ring-good';
+    return 'score-ring-fair';
+}
+
+function scoreRingLabel(score) {
+    if (score >= 75) return 'Great';
+    if (score >= 50) return 'Good';
+    return 'Fair';
+}
+
+function hourScoreClass(score) {
+    if (score >= 75) return 'hour-score-great';
+    if (score >= 50) return 'hour-score-good';
+    return 'hour-score-fair';
 }
 
 // ===== State =====
@@ -754,15 +795,16 @@ function renderOceanBar() {
         }
     }
 
-    // Sunrise/sunset for Kauai in April
+    // Sunrise/sunset for selected date
+    const sunTimes = SUN_TIMES[selectedDate] || { rise: '6:20', set: '6:52' };
     html += `<div class="ocean-chip">
         <span class="ocean-icon">🌅</span>
-        <span class="ocean-temp">6:22a</span>
+        <span class="ocean-temp">${sunTimes.rise}a</span>
         <span class="ocean-label">Sunrise</span>
     </div>`;
     html += `<div class="ocean-chip">
         <span class="ocean-icon">🌇</span>
-        <span class="ocean-temp">6:52p</span>
+        <span class="ocean-temp">${sunTimes.set}p</span>
         <span class="ocean-label">Sunset</span>
     </div>`;
 
@@ -825,26 +867,56 @@ function renderItinerary() {
 
 function renderForecasts() {
     const container = document.getElementById('forecastCards');
+    const sunTimes = SUN_TIMES[selectedDate] || { rise: '6:20', set: '6:52' };
+
+    // Compute day scores and sort locations best → worst
+    const locWithScores = LOCATIONS.map(loc => {
+        const dayScore = computeDayScore(loc.id, selectedDate);
+        return { loc, dayScore: dayScore ?? -1 };
+    }).sort((a, b) => b.dayScore - a.dayScore);
 
     let html = '';
-    for (const loc of LOCATIONS) {
+    locWithScores.forEach(({ loc, dayScore }, rank) => {
         const hours = weatherData[loc.id] || [];
         const dayHours = getHoursForDate(hours, selectedDate);
         const daytime = getDaytimeHours(dayHours);
 
-        // Current/summary: find the "best" hour or use midday
+        // Midday summary
         const middayHour = dayHours.find(h => h.time.includes('T12:')) || dayHours[Math.floor(dayHours.length / 2)];
+
+        // Summary conditions for the header
+        let condHtml = '';
+        if (daytime.length > 0) {
+            const avgWind = Math.round(daytime.reduce((s, h) => s + h.wind, 0) / daytime.length);
+            const avgClouds = Math.round(daytime.reduce((s, h) => s + h.clouds, 0) / daytime.length);
+            const maxRain = Math.max(...daytime.map(h => h.precipProb));
+            condHtml = `<div class="forecast-conditions-row">
+                <span class="forecast-cond">☁️ ${avgClouds}%</span>
+                <span class="forecast-cond">💨 ${avgWind} mph</span>
+                <span class="forecast-cond">🌧️ ${maxRain}%</span>
+            </div>`;
+        }
 
         // Find top 3 best hours
         const scored = daytime.map(h => ({ ...h, score: scoreHour(h) }));
         scored.sort((a, b) => b.score - a.score);
         const bestHours = new Set(scored.slice(0, 3).map(h => h.time));
 
-        html += `<div class="forecast-card" data-loc="${loc.id}">
+        const rankClass = rank < 3 ? `rank-${rank + 1}` : '';
+        const ringClass = dayScore >= 0 ? scoreRingClass(dayScore) : '';
+        const ringLabel = dayScore >= 0 ? scoreRingLabel(dayScore) : '';
+
+        html += `<div class="forecast-card ${rankClass}" data-loc="${loc.id}">
             <div class="forecast-header">
+                ${dayScore >= 0 ? `
+                    <div class="forecast-score-ring ${ringClass}" data-label="${ringLabel}">
+                        ${dayScore}
+                    </div>
+                ` : ''}
                 <div class="forecast-loc-info">
                     <div class="forecast-loc-name">${loc.name}</div>
-                    <div class="forecast-loc-area">${loc.area} · ${loc.desc}</div>
+                    <div class="forecast-loc-area">${loc.area}</div>
+                    ${condHtml}
                 </div>
                 <div class="forecast-summary">
                     ${middayHour ? `
@@ -856,10 +928,26 @@ function renderForecasts() {
             </div>
             <div class="forecast-hours">
                 ${daytime.map(h => {
+                    const hHour = parseInt(h.time.split('T')[1].split(':')[0]);
                     const hour = formatHour(h.time);
                     const score = scoreHour(h);
                     const isBest = bestHours.has(h.time);
-                    return `<div class="hour-col ${isBest ? 'best-hour' : ''}">
+                    const hsClass = hourScoreClass(score);
+
+                    // Insert sunrise/sunset markers
+                    let sunMarker = '';
+                    // Sunrise is ~6:20 AM, so it'll be before the 8 AM start — we'll show it as a note
+                    // Sunset is ~6:52 PM, between 18:00 and 19:00
+                    if (hHour === 19) {
+                        sunMarker = `<div class="hour-col sunset-col">
+                            <div class="hour-time">🌇</div>
+                            <div class="hour-icon"></div>
+                            <div class="hour-temp" style="font-size:0.7rem">${sunTimes.set}p</div>
+                            <div class="hour-detail">Sunset</div>
+                        </div>`;
+                    }
+
+                    return `${hHour === 19 ? sunMarker : ''}<div class="hour-col ${isBest ? 'best-hour' : ''}">
                         ${isBest ? '<div class="best-label">Best</div>' : ''}
                         <div class="hour-time">${hour}</div>
                         <div class="hour-icon">${weatherIcon(h.code)}</div>
@@ -869,11 +957,12 @@ function renderForecasts() {
                             ☁️${h.clouds}%<br>
                             🌧️${h.precipProb}%
                         </div>
+                        <div class="hour-score ${hsClass}">${score}</div>
                     </div>`;
                 }).join('')}
             </div>
         </div>`;
-    }
+    });
 
     container.innerHTML = html;
 
