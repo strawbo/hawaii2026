@@ -940,7 +940,7 @@ function renderForecasts() {
             condHtml = `<div class="forecast-conditions-row">
                 <span class="forecast-cond">☀️ ${avgSun}%</span>
                 <span class="forecast-cond">💨 ${avgWind} mph</span>
-                <span class="forecast-cond">🌧️ ${totalRain > 0 ? totalRain.toFixed(1) + 'mm' : 'dry'}</span>
+                ${totalRain > 0 ? `<span class="forecast-cond">🌧️ ${totalRain.toFixed(1)}mm</span>` : ''}
             </div>`;
         }
 
@@ -1002,7 +1002,7 @@ function renderForecasts() {
                         <div class="hour-detail">
                             ☀️${100 - h.clouds}%<br>
                             💨${Math.round(h.wind)}mph<br>
-                            🌧️${h.precip > 0 ? h.precip.toFixed(1) + 'mm' : h.precipProb + '%'}
+                            ${h.precip > 0 ? '🌧️' + h.precip.toFixed(1) + 'mm' : ''}
                         </div>
                         <div class="hour-score ${hsClass}">${score}</div>
                     </div>`;
