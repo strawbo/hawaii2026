@@ -1050,6 +1050,7 @@ function setupSwipe() {
     let touchStartX = 0;
     let touchStartY = 0;
     let touchStartTime = 0;
+    let touchStartedInNav = false;
 
     const content = document.body;
 
@@ -1057,9 +1058,13 @@ function setupSwipe() {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         touchStartTime = Date.now();
+        // Ignore swipes that start inside the day nav or any horizontal-scrolling container
+        touchStartedInNav = !!e.target.closest('.day-nav, .ocean-items, .forecast-hours');
     }, { passive: true });
 
     content.addEventListener('touchend', (e) => {
+        if (touchStartedInNav) return;
+
         const deltaX = e.changedTouches[0].clientX - touchStartX;
         const deltaY = e.changedTouches[0].clientY - touchStartY;
         const elapsed = Date.now() - touchStartTime;
