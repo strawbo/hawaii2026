@@ -851,10 +851,20 @@ function renderItinerary() {
         const ringCls = scoreRingClass(recLoc.score);
         const w = recLoc.weather;
 
-        // Build the runner-up line if there's a notably better spot
+        // Build the runner-up line explaining WHY the best spot is better
         let runnerUpHtml = '';
-        if (!stayHome && homeScore) {
-            runnerUpHtml = `<div class="block-runner-up">${homeBaseName} is ${homeScore.score} · ${diff} pts better at ${recName}</div>`;
+        if (!stayHome && homeScore && homeScore.weather && best.weather) {
+            const reasons = [];
+            const bw = best.weather;
+            const hw = homeScore.weather;
+            if (bw.sun - hw.sun >= 10) reasons.push(`sunnier (${bw.sun}% vs ${hw.sun}%)`);
+            if (hw.precip - bw.precip >= 0.3) reasons.push(`less rain`);
+            else if (bw.precip < 0.1 && hw.precip >= 0.2) reasons.push(`dry vs ${hw.precip.toFixed(1)}mm rain`);
+            if (hw.wind - bw.wind >= 3) reasons.push(`calmer wind (${bw.wind} vs ${hw.wind} mph)`);
+            if (bw.temp - hw.temp >= 3) reasons.push(`warmer (${bw.temp}° vs ${hw.temp}°)`);
+            else if (hw.temp - bw.temp >= 3) reasons.push(`cooler (${bw.temp}° vs ${hw.temp}°)`);
+            const reasonText = reasons.length > 0 ? ' — ' + reasons.join(', ') : '';
+            runnerUpHtml = `<div class="block-runner-up">${diff} pts better than ${homeBaseName}${reasonText}</div>`;
         } else if (stayHome && locScores.length > 1) {
             // Show if everywhere else is similar or worse
             const second = locScores.find(x => x.loc.id !== homeBase) || locScores[1];
