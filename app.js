@@ -110,6 +110,48 @@ const LOCATIONS = [
     },
 ];
 
+// ===== Travel Info =====
+
+const FLIGHTS = [
+    {
+        date: '2026-04-12',
+        direction: 'outbound',
+        airline: 'Alaska',
+        flight: 'AS 237',
+        from: 'SEA',
+        to: 'LIH',
+        depart: '5:59 PM',
+        arrive: '9:29 PM',
+        duration: '6h 30m',
+        cabin: 'First Class',
+        seats: 'Stephen 3D, Beck 3F',
+    },
+    {
+        date: '2026-04-19',
+        direction: 'return',
+        airline: 'Alaska',
+        flight: 'AS 213',
+        from: 'LIH',
+        to: 'SEA',
+        depart: '10:29 PM',
+        arrive: '7:15 AM +1',
+        duration: '5h 46m',
+        cabin: 'First Class',
+        seats: 'Stephen 3D, Beck 3F',
+    },
+];
+
+const RENTAL_CAR = {
+    company: 'Hertz',
+    confirmation: 'L47014329D1',
+    vehicle: 'Minivan — Chrysler Pacifica or similar',
+    pickup: 'Sun Apr 12 at 9:30 PM',
+    dropoff: 'Sun Apr 19 at 9:30 PM',
+    location: 'Lihue Airport (LIH)',
+    address: '3250 Hoolimalima Place, Kauai, HI 96766',
+    hours: '5:00 AM – 11:00 PM daily',
+};
+
 // Time blocks for weather comparison
 const TIME_BLOCKS = [
     { label: 'Morning', hours: [8, 9, 10, 11] },
@@ -969,10 +1011,78 @@ function renderForecasts() {
     });
 }
 
+function renderTravelInfo() {
+    const container = document.getElementById('travelInfo');
+
+    // Show flight info on arrival and departure days, rental car on both
+    const flight = FLIGHTS.find(f => f.date === selectedDate);
+    const showRental = selectedDate === '2026-04-12' || selectedDate === '2026-04-19';
+
+    if (!flight && !showRental) {
+        container.innerHTML = '';
+        return;
+    }
+
+    let html = '';
+
+    if (flight) {
+        const icon = flight.direction === 'outbound' ? '🛫' : '🛬';
+        html += `<div class="travel-card">
+            <div class="travel-card-header">
+                <span class="travel-icon">${icon}</span>
+                <span class="travel-label">${flight.direction === 'outbound' ? 'Flight to Kauai' : 'Flight Home'}</span>
+            </div>
+            <div class="travel-details">
+                <div class="flight-route">
+                    <div class="flight-endpoint">
+                        <div class="flight-time">${flight.depart}</div>
+                        <div class="flight-code">${flight.from}</div>
+                    </div>
+                    <div class="flight-arrow">
+                        <div class="flight-line"></div>
+                        <div class="flight-duration">${flight.duration}</div>
+                        <div class="flight-num">${flight.flight} · ${flight.airline}</div>
+                    </div>
+                    <div class="flight-endpoint">
+                        <div class="flight-time">${flight.arrive}</div>
+                        <div class="flight-code">${flight.to}</div>
+                    </div>
+                </div>
+                <div class="travel-meta">${flight.cabin} · ${flight.seats}</div>
+            </div>
+        </div>`;
+    }
+
+    if (showRental) {
+        const isPickup = selectedDate === '2026-04-12';
+        html += `<div class="travel-card">
+            <div class="travel-card-header">
+                <span class="travel-icon">🚐</span>
+                <span class="travel-label">Rental Car ${isPickup ? 'Pickup' : 'Dropoff'}</span>
+            </div>
+            <div class="travel-details">
+                <div class="rental-vehicle">${RENTAL_CAR.vehicle}</div>
+                <div class="rental-info">
+                    <span class="rental-company">${RENTAL_CAR.company}</span> · ${RENTAL_CAR.confirmation}
+                </div>
+                <div class="travel-meta">
+                    ${isPickup ? 'Pickup' : 'Dropoff'} ${isPickup ? RENTAL_CAR.pickup : RENTAL_CAR.dropoff}<br>
+                    ${RENTAL_CAR.location}<br>
+                    ${RENTAL_CAR.address}<br>
+                    Hours: ${RENTAL_CAR.hours}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    container.innerHTML = html;
+}
+
 function renderAll() {
     renderDayNav();
     renderRightNow();
     renderOceanBar();
+    renderTravelInfo();
     renderItinerary();
     renderForecasts();
 }
